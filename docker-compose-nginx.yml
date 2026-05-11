@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Frontend Service (Next.js) - proxied by Nginx
+  tourid_fe:
+    build:
+      context: ../tourid-next-project
+      dockerfile: Dockerfile
+    container_name: tourid_fe_container
+    expose:
+      - "8080"
+    env_file:
+      - ../tourid-next-project/.env.development
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://tourid_be:3000
+    depends_on:
+      - tourid_be
+    restart: unless-stopped
+
+  # Backend Service (Express.js)
+  tourid_be:
+    build:
+      context: ../tourid-express-typesript
+      dockerfile: Dockerfile
+    image: tourid_be_images
+    container_name: tourid_be_container
+    expose:
+      - "3000"
+    env_file:
+      - ../tourid-express-typesript/.env.development
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://tourid:password@tourid_postgres_db:5432/tourid_data_dev
+    depends_on:
+      - tourid_postgres_db
+    restart: unless-stopped
+
+  # Database Service (PostgreSQL)
+  tourid_postgres_db:
+    image: postgres:16
+    container_name: tourid_postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tourid
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tourid_data_dev
+    volumes:
+      - tourid_data_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy Service
+  tourid_nginx:
+    build:
+      context: ../nginx
+      dockerfile: Dockerfile
+    container_name: tourid_nginx_container
+    ports:
+      - "8080:80"
+    depends_on:
+      - tourid_fe
+      - tourid_be
+    restart: unless-stopped
+
+volumes:
+  tourid_data_volume:

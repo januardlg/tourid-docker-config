@@ -1,0 +1,69 @@
+version: '3.8'
+
+# Docker Compose for Local Development Environment
+# This configuration uses .env.development files for all services
+
+services:
+  # Frontend Service (Next.js) - Local Development
+  tourid_fe:
+    build:
+      context: ./tourid-next-project
+      dockerfile: Dockerfile
+    container_name: tourid_fe_container
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./tourid-next-project/.env.development
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://tourid_be:3000
+    depends_on:
+      - tourid_be
+    restart: unless-stopped
+    # Development-specific: Enable hot reloading and debugging
+    stdin_open: true
+    tty: true
+
+  # Backend Service (Express.js) - Local Development
+  tourid_be:
+    build:
+      context: ./tourid-express-typesript
+      dockerfile: Dockerfile
+    image: tourid_be_images
+    container_name: tourid_be_container
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./tourid-express-typesript/.env.development
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://tourid:password@tourid_postgres_db:5432/tourid_data_dev
+    depends_on:
+      - tourid_postgres_db
+    restart: unless-stopped
+    # Development-specific: Enable debugging
+    stdin_open: true
+    tty: true
+
+  # Database Service (PostgreSQL) - Local Development
+  tourid_postgres_db:
+    image: postgres:16
+    container_name: tourid_postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tourid
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tourid_data_dev
+    volumes:
+      - tourid_data_volume:/var/lib/postgresql/data
+    restart: unless-stopped
+    # Development-specific: Keep data between container restarts
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U tourid -d tourid_data_dev" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  tourid_data_volume:
