@@ -1,5 +1,7 @@
 version: '3.8'
 
+# Docker Compose for Simulate Nginx
+# This configuration uses .env.development files for all services
 services:
   # Frontend Service (Next.js) - proxied by Nginx
   tourid_fe:
@@ -12,8 +14,9 @@ services:
     env_file:
       - ../tourid-next-project/.env.development
     environment:
+      # Override the value found in .env.development
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://tourid_be:3000
+      - NEXT_PUBLIC_API_URL=http://tourid_be:3000 #docker network
     depends_on:
       - tourid_be
     restart: unless-stopped
@@ -53,7 +56,7 @@ services:
   # Nginx Reverse Proxy Service
   tourid_nginx:
     build:
-      context: ../nginx
+      context: ./nginx
       dockerfile: Dockerfile
     container_name: tourid_nginx_container
     ports:

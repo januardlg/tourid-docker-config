@@ -8,17 +8,18 @@ services:
   # Frontend Service (Next.js) - Staging
   tourid_fe_staging:
     build:
-      context: ./tourid-next-project
+      context: ../tourid-next-project
       dockerfile: Dockerfile
     image: ${TOURID_FE_IMAGE}
     container_name: ${TOURID_FE_CONTAINER_NAME}
     ports:
-      - "8081:8080"  # Different port to avoid dev conflicts
+      - "8081:8080" # Different port to avoid dev conflicts
     env_file:
       - ./tourid-next-project/.env.staging
     environment:
+      # Override the value found in .env.development
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://tourid_be_staging:3000
+      - NEXT_PUBLIC_API_URL=http://tourid_be_staging:3000 #docker network
     depends_on:
       - tourid_be_staging
     restart: always
@@ -33,12 +34,12 @@ services:
   # Backend Service (Express.js) - Staging
   tourid_be_staging:
     build:
-      context: ./tourid-express-typesript
+      context: ../tourid-express-typesript
       dockerfile: Dockerfile
     image: ${TOURID_BE_IMAGE}
     container_name: ${TOURID_BE_CONTAINER_NAME}
     ports:
-      - "3001:3000"  # Different port to avoid dev conflicts
+      - "3001:3000" # Different port to avoid dev conflicts
     env_file:
       - ./tourid-express-typesript/.env.staging
     environment:
@@ -60,7 +61,7 @@ services:
     image: ${POSTGRES_IMAGE}
     container_name: ${POSTGRES_CONTAINER_NAME}
     ports:
-      - "5433:5432"  # Different port to avoid dev conflicts
+      - "5433:5432" # Different port to avoid dev conflicts
     environment:
       POSTGRES_USER: tourid
       POSTGRES_PASSWORD: password
@@ -70,7 +71,7 @@ services:
     restart: always
     # Production-style health check
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tourid -d tourid_data_staging"]
+      test: [ "CMD-SHELL", "pg_isready -U tourid -d tourid_data_staging" ]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -16,7 +16,7 @@ services:
       - ./tourid-next-project/.env.development
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://tourid_be:3000
+      - NEXT_PUBLIC_API_URL=http://tourid_be:3000 #docker network
     depends_on:
       - tourid_be
     restart: unless-stopped
@@ -36,6 +36,7 @@ services:
     env_file:
       - ./tourid-express-typesript/.env.development
     environment:
+      # Override the value found in .env.development
       - NODE_ENV=development
       - DATABASE_URL=postgresql://tourid:password@tourid_postgres_db:5432/tourid_data_dev
     depends_on:
