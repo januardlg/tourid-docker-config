@@ -9,10 +9,18 @@ This repository contains Docker configurations to simulate a fullstack environme
 
 ---
 
-/tourid-next-project → Frontend repository (Next.js)
-/tourid-express-typesript → Backend repository (Express.js)
-/tourid-docker-config → Docker configurations
-
+##  Project Structure
+```text
+/app
+├── /tourid-next-project          # Frontend repository (Next.js)
+│   └── Dockerfile
+├── /tourid-express-typesript     # Backend repository (Express.js)
+│   └── Dockerfile
+└── /tourid-docker-config         # Docker configurations
+    ├── /nginx
+    │   └── Dockerfile
+    └── docker-compose.yml.       # For all app FE, BE, Database, and Nginx 
+```
 ---
 
 ## Docker Configurations
